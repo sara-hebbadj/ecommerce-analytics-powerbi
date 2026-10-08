@@ -1,0 +1,14 @@
+customer_id,customer_unique_id,customer_zip_code_prefix,customer_city,customer_state
+c01,uniq_A,1310,sao paulo,SP
+c02,uniq_A,01310,sao paulo,SP
+c03,uniq_B,20040,rio de janeiro,RJ
+c04,uniq_C,30130,belo horizonte,MG
+c05,uniq_D,01310,sao paulo,SP
+c06,uniq_D,01310,sao paulo,SP
+c07,uniq_E,80010,curitiba,PR
+c08,uniq_E,80010,curitiba,PR
+c09,uniq_F,40010,salvador,BA
+c10,uniq_B,20040,rio de janeiro,RJ
+c11,uniq_C,30130,belo horizonte,MG
+c12,uniq_G,69005,manaus,AM
+c13,uniq_H,01310,sao paulo,SP

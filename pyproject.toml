@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "olist-analytics"
+version = "0.1.0"
+description = "E-commerce analytics on the public Olist dataset: DuckDB SQL, Power BI model and a one-page decision memo."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Sara Hebbadj" }]
+requires-python = ">=3.11"
+dependencies = [
+    "duckdb>=1.1",
+    "pandas>=2.2",
+    "matplotlib>=3.8",
+    "python-dotenv>=1.0",
+    "openai>=1.40",  # only used by the optional AI memo draft (ai_draft.py)
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv", "outputs", "evals/dry_run"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

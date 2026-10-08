@@ -1,0 +1,36 @@
+# Secrets: never commit
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Raw Olist data: downloaded by each user from Kaggle, never re-uploaded
+data/raw/*
+!data/raw/.gitkeep
+*.zip
+
+# Row-level outputs (they are a copy of the raw data, so they stay local)
+outputs/olist.duckdb
+outputs/olist.duckdb.wal
+outputs/powerbi/
+outputs/synthetic_demo/
+
+# Power BI: the .pbix embeds the imported rows, so commit the .pbit template + PDF instead
+*.pbix
+
+# OS and editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

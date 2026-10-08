@@ -1,0 +1,1 @@
+{"timestamp_utc": "20261008T113249Z", "model": "fake-client (dry run, not a real model)", "data_label": "SYNTHETIC TEST FIXTURE - NOT REAL RESULTS", "draft_file": "memo_draft_20261008T113249Z.md", "numbers_in_draft": 13, "unsupported_numbers": "", "passed": true, "prompt_tokens": 0, "completion_tokens": 0, "cost_usd": 0.0, "latency_s": 0.0}

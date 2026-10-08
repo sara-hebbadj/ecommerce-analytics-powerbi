@@ -1,0 +1,2 @@
+timestamp_utc,model,data_label,draft_file,numbers_in_draft,unsupported_numbers,passed,prompt_tokens,completion_tokens,cost_usd,latency_s
+20261008T113249Z,"fake-client (dry run, not a real model)",SYNTHETIC TEST FIXTURE - NOT REAL RESULTS,memo_draft_20261008T113249Z.md,13,,True,0,0,0.0,0.0
