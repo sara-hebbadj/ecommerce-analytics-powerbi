@@ -8,7 +8,10 @@ SELECT
     delay_bucket,
     COUNT(*) AS orders_with_review,
     ROUND(AVG(review_score), 2) AS avg_review,
-    ROUND(100.0 * AVG(CASE WHEN review_score <= 2 THEN 1 ELSE 0 END), 2) AS low_review_pct
+    ROUND(100.0 * AVG(CASE WHEN review_score <= 2 THEN 1 ELSE 0 END), 2) AS low_review_pct,
+    -- Share of reviews answered before the parcel arrived (see q05).
+    ROUND(100.0 * AVG(CASE WHEN review_answered_before_delivery = 1 THEN 1 ELSE 0 END), 2)
+        AS answered_before_delivery_pct
 FROM fact_orders
 WHERE has_valid_delivery = 1 AND review_score IS NOT NULL
 GROUP BY delay_bucket_order, delay_bucket

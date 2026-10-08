@@ -74,7 +74,13 @@ SELECT
     COALESCE(i.freight_value, 0) AS freight_value,
     p.payment_value,
     p.main_payment_type,
-    r.review_score
+    r.review_score,
+    -- Olist emails the review survey when the parcel arrives OR when the promised date is
+    -- due, so a late order's review is often ANSWERED BEFORE the parcel arrived.
+    -- 1 = answered before delivery, 0 = at or after delivery, NULL = cannot tell.
+    CASE WHEN o.has_valid_delivery AND r.review_answered_ts IS NOT NULL
+        THEN CAST(r.review_answered_ts < o.delivered_ts AS INTEGER)
+    END AS review_answered_before_delivery
 FROM clean_orders AS o
 LEFT JOIN clean_customers AS c USING (customer_id)
 LEFT JOIN items AS i USING (order_id)

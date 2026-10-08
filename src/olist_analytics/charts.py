@@ -128,7 +128,10 @@ def cohort_grid(cohorts: pd.DataFrame, min_cohort_size: int, last_month, months:
     """Retention % per cohort (rows) and months later (columns 1..months).
 
     0 means "observed, nobody came back". NaN means "not observable yet" (the month is
-    after the end of the data), which is different from 0 and is left blank in the chart.
+    after last_month), which is different from 0 and is left blank in the chart.
+    Pass the last FULL month as last_month: a partial final month (on the real data,
+    Sep-Oct 2018 have only cancelled stragglers) would show fake 0% cells.
+    Cohorts with no observable month at all are dropped.
     """
     sizes = cohorts[
         (cohorts["months_since_first"] == 0) & (cohorts["cohort_size"] >= min_cohort_size)
@@ -143,7 +146,12 @@ def cohort_grid(cohorts: pd.DataFrame, min_cohort_size: int, last_month, months:
         for m in grid.columns:
             if cohort + pd.DateOffset(months=m) <= pd.Timestamp(last_month):
                 grid.loc[cohort, m] = lookup.get((cohort, m), 0.0)
-    return grid
+    return grid.dropna(how="all")
+
+
+def last_full_month(monthly: pd.DataFrame) -> pd.Timestamp:
+    """The latest purchase month that is not flagged as partial in q01."""
+    return pd.to_datetime(monthly.loc[monthly["is_partial_month"] == 0, "purchase_month"]).max()
 
 
 def cohort_heatmap(cohorts: pd.DataFrame, min_cohort_size: int, last_month, path: Path) -> Path:
@@ -186,7 +194,7 @@ def make_charts(results: dict[str, pd.DataFrame], min_cohort_size: int, charts_d
         cohort_heatmap(
             results["q07_cohort_retention"],
             min_cohort_size,
-            results["q01_monthly_orders_revenue"]["purchase_month"].max(),
+            last_full_month(results["q01_monthly_orders_revenue"]),
             charts_dir / "cohort_retention.png",
         ),
     ]

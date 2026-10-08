@@ -1,0 +1,8 @@
+metric,sql_value,sql_source,export_value,export_source,matches,expected_in_powerbi
+Delivered orders,96478.0,q01 sum of orders_delivered,96478.0,fact_orders.csv rows with is_delivered = 1,True,96478.0
+"Revenue (BRL, item prices, delivered)",13221498.11,q01 sum of revenue_delivered,13221498.11,fact_orders.csv sum of item_revenue (delivered),True,13221498.11
+Revenue by category adds up to total,13221498.11,q06 ALL CATEGORIES revenue,13221498.11,fact_order_items.csv sum of price (delivered),True,13221498.11
+"Freight (BRL, delivered)",2198275.64,q06 ALL CATEGORIES freight,2198275.64,fact_orders.csv sum of freight_value (delivered),True,2198275.64
+Late orders,6534.0,q04 sum of late_orders,6534.0,fact_orders.csv sum of is_late,True,6534.0
+Customers with a delivered order,93358.0,q02 customers,93358.0,dim_customer.csv rows with delivered_orders >= 1,True,93358.0
+Repeat customers,2801.0,q02 repeat_customers,2801.0,dim_customer.csv sum of is_repeat_customer,True,2801.0

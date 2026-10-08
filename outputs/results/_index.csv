@@ -1,0 +1,13 @@
+file,question,rows
+q01_monthly_orders_revenue.sql,"How many orders were placed and delivered each month, and how much product revenue did the delivered orders bring in?",25
+q02_repeat_customer_rate.sql,"What share of customers came back and placed a second delivered order, and how long did they take to come back?",1
+q03_top_categories.sql,"Which product categories bring the most revenue, and which get the best and worst review scores?",74
+q04_late_delivery_by_state.sql,"In which customer states do deliveries arrive later than the date promised at checkout, and by how much?",27
+q05_review_late_vs_on_time.sql,Do late orders get worse review scores than on-time orders?,2
+q06_freight_share.sql,"How big is the freight cost compared with the price of the goods, overall and by category?",75
+q07_cohort_retention.sql,"Of the customers whose first delivered order was in a given month (a cohort), what share bought again 1, 2, 3 ... months later?",219
+q08_seller_ranking.sql,"Which sellers bring the most revenue, and which of them give customers a worse experience (more late deliveries and lower reviews than the marketplace average)?",627
+q09_payment_types.sql,"How do customers pay (credit card, boleto, voucher, debit card), and how many instalments do they use?",4
+q10_basket_size.sql,"How big is a typical basket: how many items, how many different products, and how much money per delivered order?",1
+q11_review_by_delay_bucket.sql,Does the review score fall further the later an order arrives?,5
+q12_worst_routes.sql,Which seller-state -> customer-state routes have the highest late-delivery rate?,15

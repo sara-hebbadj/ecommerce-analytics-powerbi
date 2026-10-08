@@ -26,6 +26,9 @@ Revenue MoM % =
 VAR CurrentRevenue = [Revenue]
 VAR PreviousRevenue = CALCULATE ( [Revenue], DATEADD ( dim_date[date], -1, MONTH ) )
 RETURN DIVIDE ( CurrentRevenue - PreviousRevenue, PreviousRevenue )
+-- q01 leaves growth EMPTY when this month or the previous one is partial (on the real data:
+-- Sep, Oct, Dec 2016 and Sep, Oct 2018). In the visual, filter dim_date to Jan 2017 - Aug 2018
+-- so the dashboard matches q01 (otherwise Jan 2017 shows a meaningless +1,025,573%).
 
 Item Revenue =
 -- Same revenue, summed on the ITEM table: use it with category, product and seller fields
@@ -94,6 +97,23 @@ DIVIDE (
     )
 )
 
+Answered Before Delivery % =
+-- Share of reviewed orders whose review was answered BEFORE the parcel arrived (q05, q11).
+-- Put it next to "Review score by days late": for very late orders most reviews were written
+-- while the customer was still waiting.
+DIVIDE (
+    CALCULATE (
+        COUNTROWS ( fact_orders ),
+        fact_orders[review_answered_before_delivery] = 1,
+        NOT ISBLANK ( fact_orders[review_score] )
+    ),
+    CALCULATE (
+        COUNTROWS ( fact_orders ),
+        fact_orders[has_valid_delivery] = 1,
+        NOT ISBLANK ( fact_orders[review_score] )
+    )
+)
+
 Avg Review (orders in category) =
 -- For category visuals: each ORDER counts once, even if it has 3 items in the category
 -- (same rule as q03). SUMMARIZE makes one row per order before averaging.
@@ -116,7 +136,7 @@ AVERAGEX (
 | Measure | Format |
 |---|---|
 | Revenue, Item Revenue, Average Order Value, Payment Value | Decimal number, 0 decimals, thousands separator (prefix "BRL " in the visual title, not in the number) |
-| Revenue MoM %, Freight Share %, Repeat Rate %, Late Rate %, Low Review Share % | Percentage, 1 decimal |
+| Revenue MoM %, Freight Share %, Repeat Rate %, Late Rate %, Low Review Share %, Answered Before Delivery % | Percentage, 1 decimal |
 | Avg Review Score, Avg Review (orders in category) | Decimal number, 2 decimals |
 | Avg Delivery Days | Decimal number, 1 decimal |
 | Counts | Whole number, thousands separator |

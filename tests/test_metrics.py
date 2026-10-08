@@ -6,9 +6,12 @@ fails after a SQL change, either the SQL or the definition changed: decide which
 
 from dataclasses import replace
 
+import duckdb
 import pytest
 
-from olist_analytics.config import FIXTURE_PARAMS, QUESTIONS_DIR
+from olist_analytics.analysis import build_tables
+from olist_analytics.config import FIXTURE_DIR, FIXTURE_PARAMS, QUESTIONS_DIR
+from olist_analytics.load import load_raw_tables
 
 
 def by(df, column):
@@ -34,6 +37,37 @@ def test_repeat_rate_uses_the_real_customer(results):
     assert row["repeat_rate_pct"] == pytest.approx(42.86)
     assert row["repeat_rate_pct_if_counted_by_customer_id"] == 0  # the trap
     assert row["median_days_first_to_second_order"] == 36  # 28, 36, 71 days
+    # No same-day "repeat" customers in the fixture: all three came back on a later day.
+    assert row["repeat_customers_same_day_only"] == 0
+    assert row["customers_back_on_later_day"] == 3
+    assert row["repeat_rate_pct_later_day"] == pytest.approx(42.86)
+    assert row["median_days_to_later_day_order"] == 36
+
+
+def _db_with_extra_rows(*statements):
+    """Fixture database with a few raw rows changed BEFORE cleaning (for one edge case)."""
+    con = duckdb.connect()
+    load_raw_tables(con, FIXTURE_DIR)
+    for sql in statements:
+        con.execute(sql)
+    build_tables(con, FIXTURE_PARAMS)
+    return con
+
+
+def test_same_day_second_order_is_not_a_return():
+    # Person F (o09, 2017-02-14) places a second delivered order o14 on the SAME day.
+    con = _db_with_extra_rows(
+        "INSERT INTO raw_customers VALUES ('c14', 'uniq_F', '40010', 'salvador', 'BA')",
+        "INSERT INTO raw_orders VALUES ('o14', 'c14', 'delivered', '2017-02-14 15:00:00', "
+        "'2017-02-14 16:00:00', NULL, '2017-02-20 10:00:00', '2017-03-01 00:00:00')",
+    )
+    row = con.execute((QUESTIONS_DIR / "q02_repeat_customer_rate.sql").read_text()).fetchdf()
+    row = row.iloc[0]
+    assert row["repeat_customers"] == 4  # A, C, E and now F
+    assert row["repeat_customers_same_day_only"] == 1  # F
+    assert row["median_days_first_to_second_order"] == 32  # 0, 28, 36, 71
+    assert row["customers_back_on_later_day"] == 3  # still A, C, E
+    assert row["median_days_to_later_day_order"] == 36  # F does not count
 
 
 def test_late_rate_by_state(results):
@@ -52,6 +86,25 @@ def test_reviews_late_vs_on_time(results):
     assert reviews.loc["late", "avg_review"] == 1.5  # 2 and 1
     assert reviews.loc["late", "low_review_pct"] == 100.0
     assert reviews.loc["on_time", "low_review_pct"] == 0.0
+    # Every fixture review was answered after its parcel arrived.
+    assert reviews["answered_before_delivery"].sum() == 0
+    assert reviews.loc["late", "answered_after_delivery"] == 2
+    assert reviews.loc["late", "avg_review_answered_after_delivery"] == 1.5
+
+
+def test_review_answered_before_late_delivery_is_counted():
+    # o04: promised 2017-02-05, delivered 2017-02-15 10:00. Move its review answer to
+    # 2017-02-06, i.e. after the promised date but while the customer was still waiting.
+    con = _db_with_extra_rows(
+        "UPDATE raw_reviews SET review_creation_date = '2017-02-06 00:00:00', "
+        "review_answer_timestamp = '2017-02-06 10:00:00' WHERE order_id = 'o04'"
+    )
+    sql = (QUESTIONS_DIR / "q05_review_late_vs_on_time.sql").read_text()
+    reviews = by(con.execute(sql).fetchdf(), "delivery_group")
+    assert reviews.loc["late", "answered_before_delivery"] == 1  # o04, of o02 and o04
+    assert reviews.loc["late", "answered_before_delivery_pct"] == 50.0
+    assert reviews.loc["late", "avg_review_answered_after_delivery"] == 2.0  # o02 only
+    assert reviews.loc["on_time", "answered_before_delivery"] == 0
 
 
 def test_review_by_delay_bucket(results):

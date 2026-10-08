@@ -47,6 +47,9 @@ SELECT
     COALESCE(NULLIF(TRIM(p.product_category_name), ''), 'unknown') AS category_pt,
     -- English name; falls back to the Portuguese name when no translation exists.
     COALESCE(t.category_en, NULLIF(TRIM(p.product_category_name), ''), 'unknown') AS category,
+    -- Some Olist names are the same in both languages (e.g. 'pet_shop'), so "category equals
+    -- category_pt" does NOT mean "no translation". This flag records it explicitly.
+    t.category_en IS NOT NULL AS has_english_name,
     TRY_CAST(p.product_name_length AS INTEGER) AS name_length,
     TRY_CAST(p.product_description_length AS INTEGER) AS description_length,
     TRY_CAST(p.product_photos_qty AS INTEGER) AS photos_qty,

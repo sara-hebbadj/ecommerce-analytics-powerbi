@@ -43,6 +43,10 @@ def _list_or_none(items: list[str]) -> str:
     return ", ".join(items) if items else "none with enough orders"
 
 
+def _days_or_na(value) -> str:
+    return fmt_int(value) if pd.notna(value) else "n/a"
+
+
 # --- Finding 1: lateness and reviews ---
 def review_gap_ci(reviews: pd.DataFrame) -> tuple[float, float, float]:
     """On-time minus late average review, with a 95% confidence interval.
@@ -60,6 +64,23 @@ def review_gap_ci(reviews: pd.DataFrame) -> tuple[float, float, float]:
         + late["sd_review"] ** 2 / late["orders_with_review"]
     )
     return gap, gap - 1.96 * se, gap + 1.96 * se
+
+
+def review_by_bucket(buckets: pd.DataFrame) -> str:
+    """One line per lateness bucket: 'On time or early 4.29 (n=...); 1-3 days late ...'."""
+    return "; ".join(
+        f"{r.delay_bucket} {fmt_stars(r.avg_review)} (n={fmt_int(r.orders_with_review)})"
+        for r in buckets.sort_values("delay_bucket_order").itertuples()
+    )
+
+
+def late_rate_by_timestamp(results: dict[str, pd.DataFrame], dq_log: pd.DataFrame) -> str:
+    """Sensitivity check: the late rate if timestamps were compared instead of dates."""
+    states = results["q04_late_delivery_by_state"]
+    extra = dq_log.set_index("check").loc[
+        "orders_on_time_by_date_but_late_by_timestamp", "rows_affected"
+    ]
+    return fmt_pct(100 * (states["late_orders"].sum() + extra) / states["delivered_orders"].sum())
 
 
 def delivery_facts(results: dict[str, pd.DataFrame], params: Params) -> dict:
@@ -83,7 +104,14 @@ def delivery_facts(results: dict[str, pd.DataFrame], params: Params) -> dict:
     # ...and if those orders then got on-time-like reviews, how many 1-2 star reviews fewer?
     low_reviews_avoided = late_avoided * (low_late - low_on_time) / 100
 
-    avg_late = reviews.loc["late", "avg_review"] if "late" in reviews.index else float("nan")
+    has_late = "late" in reviews.index
+    avg_late = reviews.loc["late", "avg_review"] if has_late else float("nan")
+    # Reviews answered before the parcel arrived, and the score of those answered after it.
+    late_before = reviews.loc["late", "answered_before_delivery_pct"] if has_late else 0.0
+    late_after_n = reviews.loc["late", "answered_after_delivery"] if has_late else 0
+    late_after_avg = (
+        reviews.loc["late", "avg_review_answered_after_delivery"] if has_late else float("nan")
+    )
     gap, ci_low, ci_high = review_gap_ci(reviews)
     return {
         "review_gap": fmt_stars(gap),
@@ -94,6 +122,12 @@ def delivery_facts(results: dict[str, pd.DataFrame], params: Params) -> dict:
         "avg_review_on_time": fmt_stars(reviews.loc["on_time", "avg_review"]),
         "low_review_pct_late": fmt_pct(low_late),
         "low_review_pct_on_time": fmt_pct(low_on_time),
+        "late_answered_before_delivery_pct": fmt_pct(late_before),
+        "late_answered_after_delivery": fmt_int(late_after_n),
+        "avg_review_late_answered_after_delivery": fmt_stars(late_after_avg)
+        if pd.notna(late_after_avg)
+        else "n/a",
+        "review_by_delay_buckets": review_by_bucket(results["q11_review_by_delay_bucket"]),
         "worst_states": _list_or_none(
             [f"{r.customer_state} ({fmt_pct(r.late_rate_pct)})" for r in worst_three.itertuples()]
         ),
@@ -119,13 +153,18 @@ def customer_facts(results: dict[str, pd.DataFrame], aov: float) -> dict:
     month1_rate = 100 * month1["active_customers"].sum() / max(sizes["cohort_size"].sum(), 1)
 
     extra_repeat = repeat["customers"] * 0.01  # +1 percentage point of repeat rate
+    same_day = repeat["repeat_customers_same_day_only"]
     return {
         "customers": fmt_int(repeat["customers"]),
+        "repeat_customers": fmt_int(repeat["repeat_customers"]),
         "repeat_rate_pct": fmt_pct(repeat["repeat_rate_pct"]),
         "repeat_rate_by_customer_id": fmt_pct(repeat["repeat_rate_pct_if_counted_by_customer_id"]),
-        "median_days_to_second_order": fmt_int(repeat["median_days_first_to_second_order"])
-        if pd.notna(repeat["median_days_first_to_second_order"])
-        else "n/a",
+        "median_days_to_second_order": _days_or_na(repeat["median_days_first_to_second_order"]),
+        # Same-day "repeat" customers split one basket into several orders; they did not return.
+        "repeat_same_day_only": fmt_int(same_day),
+        "repeat_same_day_only_pct": fmt_pct(100 * same_day / max(repeat["repeat_customers"], 1)),
+        "repeat_rate_later_day_pct": fmt_pct(repeat["repeat_rate_pct_later_day"]),
+        "median_days_to_later_order": _days_or_na(repeat["median_days_to_later_day_order"]),
         "month1_retention_pct": fmt_pct(month1_rate),
         "month1_cohorts": str(len(sizes)),
         "extra_repeat_customers_per_point": fmt_int(extra_repeat),
@@ -196,6 +235,7 @@ def build_facts(
         "revenue": fmt_money(revenue),
         "avg_order_value": fmt_money(aov),
         "dq_summary": dq_summary(dq_log),
+        "late_rate_pct_by_timestamp": late_rate_by_timestamp(results, dq_log),
     }
     facts.update(delivery_facts(results, params))
     facts.update(customer_facts(results, aov))

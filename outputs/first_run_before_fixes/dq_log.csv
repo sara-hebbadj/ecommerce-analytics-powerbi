@@ -1,0 +1,27 @@
+check,table,rows_affected,table_rows,pct_of_table,action
+orders_duplicate_order_id,raw_orders,0,99441,0.0,Kept one row per order_id.
+orders_unreadable_purchase_timestamp,raw_orders,0,99441,0.0,Kept; left out of monthly and cohort results (no month).
+orders_cancelled_or_unavailable,clean_orders,1234,99441,1.241,"Excluded from revenue, repeat-customer and delivery metrics."
+orders_still_in_progress,clean_orders,1729,99441,1.739,Not delivered yet: excluded from revenue and delivery metrics.
+orders_delivered_but_no_delivery_date,clean_orders,8,99441,0.008,Counted in revenue; excluded from delivery-time and lateness metrics.
+orders_delivered_before_purchase,clean_orders,0,99441,0.0,Counted in revenue; excluded from delivery-time and lateness metrics.
+orders_not_delivered_but_have_delivery_date,clean_orders,6,99441,0.006,Status wins: treated as not delivered.
+orders_customer_not_found,clean_orders,0,99441,0.0,Kept in sales totals; left out of customer metrics (no customer_unique_id).
+delivered_orders_without_items,fact_orders,0,99441,0.0,Kept; they add 0 revenue and slightly lower the average order value.
+items_exact_duplicate_rows,raw_order_items,0,112650,0.0,Removed.
+items_duplicate_order_item_key,raw_order_items,0,112650,0.0,"Kept one row per (order_id, order_item_id)."
+items_missing_or_non_positive_price,clean_order_items,0,112650,0.0,Kept; they add nothing to revenue. Review manually if the count is large.
+items_order_not_found,clean_order_items,0,112650,0.0,Dropped from the model (no order to attach them to).
+products_missing_category,clean_products,610,32951,1.851,Labelled 'unknown'.
+products_category_without_english_name,clean_products,2058,32951,6.246,Portuguese category name used instead.
+reviews_review_id_reused,raw_reviews,814,99224,0.82,"Information only: reviews are matched to orders by order_id, not review_id."
+reviews_extra_reviews_for_same_order,raw_reviews,551,99224,0.555,Kept only the latest review for each order.
+reviews_score_missing_or_out_of_range,raw_reviews,0,99224,0.0,Score set to missing.
+delivered_orders_without_review,fact_orders,646,99441,0.65,Left out of review metrics.
+payments_type_not_defined,clean_payments,3,103886,0.003,Kept as its own payment type.
+payments_zero_value,clean_payments,9,103886,0.009,Kept.
+delivered_orders_payment_differs_from_items_plus_freight,fact_orders,247,99441,0.248,"Information only: revenue uses item prices, not payments (vouchers and instalment interest can make them differ)."
+customers_zip_prefix_lost_leading_zero,raw_customers,0,99441,0.0,Left-padded with zeros to 5 digits.
+sellers_zip_prefix_lost_leading_zero,raw_sellers,0,3095,0.0,Left-padded with zeros to 5 digits.
+geolocation_exact_duplicate_rows,raw_geolocation,261831,1000163,26.179,Harmless: only one median point per state is used.
+geolocation_points_outside_brazil,raw_geolocation,31,1000163,0.003,Ignored when computing the state map points.

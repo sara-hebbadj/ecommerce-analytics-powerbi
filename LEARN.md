@@ -21,13 +21,13 @@ For Sara. Practise the walkthrough out loud twice before recording the video or 
    In `q07_cohort_retention.sql`, `MIN(purchase_month) OVER (PARTITION BY customer_unique_id)` puts each customer's first month on every one of their orders without a self-join. Then I count customers by cohort month and "months since first", and divide by the cohort size. `q01` uses `LAG()` to compare each month's revenue with the month before.
 
 2. **How do late deliveries affect reviews in your data, and how sure are you?**
-   Late orders have a much lower average review and far more 1–2 star reviews (quote the real numbers from `q05`). The 95% confidence interval for the gap shows it is not sampling noise, and the review falls step by step as delays grow (`q11`), which is consistent with a real effect. But it is a correlation: late orders may also differ by region, product or seller. To prove cause I would test, for example, a carrier change in one state against a similar state.
+   Late orders have a much lower average review and far more 1–2 star reviews (quote the real numbers from `q05`). The 95% confidence interval for the gap shows it is not sampling noise, and on the real data the review falls as delays grow for about two weeks and then levels off (`q11`). But two things limit what it proves. First, it is a correlation: late orders may also differ by region, product or seller. Second, Olist sends the review survey on the promised date if the parcel has not arrived, so most reviews of very late orders were answered while the customer was still waiting (`answered_before_delivery_pct` in `q05` and `q11`): part of the gap is "not arrived yet", not "arrived late". To prove cause I would test, for example, a carrier change in one state against a similar state.
 
 3. **What would you put on the CEO's one-page view?**
    Four numbers (revenue, delivered orders, late rate, repeat rate) with their trend, the one chart "review score by days late", and the three recommendations with their expected impact and assumptions. Nothing that needs explaining.
 
 4. **One data-quality problem you found, and how you handled it.**
-   `customer_id` is new for every order, so a naive repeat rate is 0%. I used `customer_unique_id` and show both numbers. (After the real run, add a second one from `dq_log.csv` with its real count, for example delivered orders without a delivery date: kept in revenue, left out of lateness.)
+   `customer_id` is new for every order, so a naive repeat rate is 0%. I used `customer_unique_id` and show both numbers. (After the real run, add a second one from `dq_log.csv` with its real count, for example delivered orders without a delivery date: kept in revenue, left out of lateness. Other real-data examples are in the README, section 6: same-day split orders counted as "repeat" customers, and a check that over-counted untranslated categories.)
 
 5. **Why load everything as text first?**
    Automatic type guessing can silently damage data: zip prefix `01310` becomes the number `1310`. Loading text and casting with `TRY_CAST` turns bad values into NULL, and the data-quality log counts them, so nothing disappears unnoticed.

@@ -1,5 +1,12 @@
 """Cleaning rules and the data-quality log, checked against rows designed into the fixture."""
 
+import duckdb
+
+from olist_analytics.analysis import build_tables
+from olist_analytics.config import FIXTURE_DIR, FIXTURE_PARAMS
+from olist_analytics.load import load_raw_tables
+from olist_analytics.quality import run_quality_checks
+
 
 def one(db, sql):
     return db.execute(sql).fetchone()[0]
@@ -13,6 +20,7 @@ def test_data_quality_log_counts(pipeline_outputs):
         "orders_still_in_progress": 1,  # o10 shipped
         "orders_delivered_but_no_delivery_date": 1,  # o09
         "orders_delivered_before_purchase": 1,  # o12
+        "orders_on_time_by_date_but_late_by_timestamp": 1,  # o07 (18:00 on the promised day)
         "orders_not_delivered_but_have_delivery_date": 1,  # o05
         "orders_customer_not_found": 0,
         "items_exact_duplicate_rows": 1,  # o03 item twice
@@ -101,3 +109,19 @@ def test_state_map_points_ignore_points_outside_brazil(db):
     sp = db.execute("SELECT latitude, longitude FROM dim_state WHERE state_code='SP'").fetchone()
     assert sp == (-23.56, -46.65)
     assert one(db, "SELECT COUNT(*) FROM dim_state") == 27
+
+
+def test_category_with_same_name_in_both_languages_is_translated():
+    """Regression (found on the real data): 'pet_shop' -> 'pet_shop' IS a translation.
+
+    The first version counted every product whose English name equalled its Portuguese
+    name as "no English name" (2,058 real products instead of 13). Here pc_gamer gets a
+    translation row with the same name, so it must no longer be counted.
+    """
+    con = duckdb.connect()
+    load_raw_tables(con, FIXTURE_DIR)
+    con.execute("INSERT INTO raw_category_translation VALUES ('pc_gamer', 'pc_gamer')")
+    build_tables(con, FIXTURE_PARAMS)
+    counts = run_quality_checks(con).set_index("check")["rows_affected"]
+    assert counts["products_category_without_english_name"] == 0
+    assert one(con, "SELECT category FROM dim_product WHERE product_id = 'p05'") == "pc_gamer"

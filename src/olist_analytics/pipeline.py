@@ -33,7 +33,10 @@ from olist_analytics.quality import run_quality_checks
 from olist_analytics.reconcile import reconcile
 from olist_analytics.schema import SchemaError, check_raw_files
 
-REAL_DATA_LABEL = "Olist Brazilian E-commerce public dataset (Kaggle)"
+# Attribution required by the dataset's CC BY-NC-SA 4.0 licence (see data/README.md).
+REAL_DATA_LABEL = (
+    "Brazilian E-Commerce Public Dataset by Olist (Kaggle, version 2; licence CC BY-NC-SA 4.0)"
+)
 SYNTHETIC_LABEL = "SYNTHETIC TEST FIXTURE - NOT REAL RESULTS"
 
 

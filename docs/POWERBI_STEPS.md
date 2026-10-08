@@ -103,7 +103,7 @@ Rename the page **Sales**. Add:
 | Visual | Fields | Settings |
 |---|---|---|
 | 4 × **Card** | `Revenue`, `Delivered Orders`, `Average Order Value`, `Freight Share %` | One card each, in a row at the top |
-| **Line chart** "Monthly revenue" | X: `dim_date[month_start]`; Y: `Revenue` | X-axis type *Categorical* if dates look crowded. Note in the subtitle that the first and last months are partial (see `is_partial_month` in `outputs/results/q01_monthly_orders_revenue.csv`). |
+| **Line chart** "Monthly revenue" | X: `dim_date[month_start]`; Y: `Revenue` | X-axis type *Categorical* if dates look crowded. Note in the subtitle that the first and last months are partial (see `is_partial_month` in `outputs/results/q01_monthly_orders_revenue.csv`; on the real data the full months are Jan 2017 to Aug 2018, so filter the visual to those months). |
 | **Clustered bar chart** "Top 10 categories" | Y: `fact_order_items[category]`; X: `Item Revenue` | Filters pane → category → *Top N* = 10 by `Item Revenue` |
 | **Filled map** (or **Map**) "Revenue by state" | Location: `dim_state[map_location]` (or Latitude/Longitude); Color saturation / Bubble size: `Revenue` | Tooltips: `Delivered Orders` |
 | **Donut** or **bar** "How customers pay" | Legend/axis: `fact_payments[payment_type]`; Values: `Payment Value` | |
@@ -127,10 +127,11 @@ Rename the page **Sales**. Add:
 | **Clustered bar chart** "Late rate by state" | Y: `dim_state[state_code]`; X: `Late Rate %` | Sort by `Late Rate %` descending. Visual filter: `Orders With Delivery Date` *is greater than or equal to* 100. Tooltip: `Orders With Delivery Date`. |
 | **Table** "Worst routes (seller state → customer state)" | `agg_worst_routes[route]`, `orders`, `late_orders`, `late_rate_pct` | Sort by `late_rate_pct` descending |
 | **Line chart** (optional) "Low reviews by days late" | X: `fact_orders[delay_bucket]`; Y: `Low Review Share %` | Same blank filter |
+| **Line on the key chart** (secondary axis) "Answered before delivery" | Add `Answered Before Delivery %` as the line value of the "Review score by days late" chart (Line and clustered column chart) | Shows that, for very late orders, most reviews were written before the parcel arrived (see `q11`). |
 | **Slicers** | `dim_date[year]`, `dim_state[region]` | |
 
-Add the footer text box on every page: *"Data: Brazilian E-Commerce Public Dataset by Olist,
-Kaggle (licence: see data/README.md). Revenue = item prices of delivered orders, BRL."*
+Add the footer text box on every page: *"Data: Brazilian E-Commerce Public Dataset by Olist
+(Kaggle, version 2), licensed CC BY-NC-SA 4.0. Revenue = item prices of delivered orders, BRL."*
 
 ## 8. Check the totals
 

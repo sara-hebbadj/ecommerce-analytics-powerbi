@@ -3,7 +3,9 @@
 -- Definitions: revenue = sum of item prices (BRL) of DELIVERED orders, excluding freight.
 -- Orders are counted in the month they were PURCHASED. A month with fewer than 10% of the
 -- median month's orders is flagged as partial (usually the first or last months of the data).
--- Window function: LAG() looks at the previous month's revenue to compute growth.
+-- Window function: LAG() looks at the previous month's revenue to compute growth. Growth is
+-- left empty when this month or the previous one is partial (on the real data, January 2017
+-- vs a December 2016 with a single order gave a meaningless +1,025,573%).
 WITH monthly AS (
     SELECT
         purchase_month,
@@ -14,6 +16,13 @@ WITH monthly AS (
     FROM fact_orders
     WHERE purchase_month IS NOT NULL
     GROUP BY purchase_month
+),
+flagged AS (
+    SELECT
+        *,
+        CAST(orders_placed < 0.1 * (SELECT MEDIAN(orders_placed) FROM monthly) AS INTEGER)
+            AS is_partial_month
+    FROM monthly
 )
 SELECT
     purchase_month,
@@ -22,12 +31,14 @@ SELECT
     orders_cancelled,
     revenue_delivered,
     ROUND(revenue_delivered / NULLIF(orders_delivered, 0), 2) AS avg_order_value,
-    ROUND(
-        100.0 * (revenue_delivered - LAG(revenue_delivered) OVER (ORDER BY purchase_month))
-        / NULLIF(LAG(revenue_delivered) OVER (ORDER BY purchase_month), 0),
-        2
-    ) AS revenue_mom_pct,
-    CAST(orders_placed < 0.1 * (SELECT MEDIAN(orders_placed) FROM monthly) AS INTEGER)
-        AS is_partial_month
-FROM monthly
+    CASE WHEN is_partial_month = 0 AND LAG(is_partial_month) OVER by_month = 0 THEN
+        ROUND(
+            100.0 * (revenue_delivered - LAG(revenue_delivered) OVER by_month)
+            / NULLIF(LAG(revenue_delivered) OVER by_month, 0),
+            2
+        )
+    END AS revenue_mom_pct,
+    is_partial_month
+FROM flagged
+WINDOW by_month AS (ORDER BY purchase_month)
 ORDER BY purchase_month;

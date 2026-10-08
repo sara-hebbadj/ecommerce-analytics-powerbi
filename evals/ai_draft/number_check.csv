@@ -1,0 +1,4 @@
+timestamp_utc,model,data_label,draft_file,numbers_in_draft,unsupported_numbers,passed,prompt_tokens,completion_tokens,cost_usd,latency_s
+20261008T123550Z,openai/gpt-6-luna,Olist Brazilian E-commerce public dataset (Kaggle),memo_draft_20261008T123550Z.md,23,,True,901,1250,0.0007151,11.86
+20261008T123613Z,openai/gpt-6-luna,Olist Brazilian E-commerce public dataset (Kaggle),memo_draft_20261008T123613Z.md,24,,True,901,831,0.0005056,8.763
+20261008T123625Z,openai/gpt-6-luna,Olist Brazilian E-commerce public dataset (Kaggle),memo_draft_20261008T123625Z.md,25,,True,901,898,0.0005391,9.475

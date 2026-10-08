@@ -1,0 +1,2 @@
+customers,repeat_customers,repeat_rate_pct,orders_per_customer,median_days_first_to_second_order,repeat_rate_pct_if_counted_by_customer_id
+93358,2801,3.0,1.033,29.0,0.0

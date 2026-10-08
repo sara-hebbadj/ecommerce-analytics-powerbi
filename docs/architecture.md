@@ -30,7 +30,7 @@ flowchart LR
 | Load | `src/olist_analytics/load.py` | Finds the CSV folder (or extracts the Kaggle zip) and loads each file into DuckDB as text. |
 | Clean | `sql/stage_1_clean.sql` | Casts types, removes duplicates, keeps the latest review, pads zip codes, translates categories. |
 | Model | `sql/stage_2_model.sql` | Builds `fact_orders`, `fact_order_items`, `fact_payments` and the dimensions. Children are aggregated per order before joining. |
-| Data quality | `src/olist_analytics/quality.py` | 26 checks; each counts the rows a rule touched → `outputs/dq_log.csv`. |
+| Data quality | `src/olist_analytics/quality.py` | 27 checks; each counts the rows a rule touched → `outputs/dq_log.csv`. |
 | Questions | `sql/questions/q01…q12.sql`, `analysis.py` | One business question per file, answers saved as CSV. |
 | Power BI export | `export_powerbi.py` | Writes the model tables as CSV for Power BI (row-level, git-ignored). |
 | Reconciliation | `reconcile.py` | The same totals computed two ways must match (catches join fan-out). |

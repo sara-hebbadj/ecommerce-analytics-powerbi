@@ -1,0 +1,3 @@
+delivery_group,orders_with_review,avg_review,sd_review,low_review_pct,five_star_pct,answered_before_delivery,answered_before_delivery_pct,answered_after_delivery,avg_review_answered_after_delivery
+on_time,89443,4.29,1.1492,9.27,62.27,180,0.2,89263,4.29
+late,6381,2.27,1.5712,62.42,16.53,4473,70.1,1908,3.72

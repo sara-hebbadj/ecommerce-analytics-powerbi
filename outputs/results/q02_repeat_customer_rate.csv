@@ -1,0 +1,2 @@
+customers,repeat_customers,repeat_rate_pct,orders_per_customer,median_days_first_to_second_order,repeat_rate_pct_if_counted_by_customer_id,repeat_customers_same_day_only,customers_back_on_later_day,repeat_rate_pct_later_day,median_days_to_later_day_order
+93358,2801,3.0,1.033,29.0,0.0,786,2015,2.16,74.0

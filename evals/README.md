@@ -31,5 +31,21 @@ python -m olist_analytics.ai_draft --dry-run --facts outputs/synthetic_demo/memo
 python -m olist_analytics.ai_draft --model cheap
 ```
 
-Live AI results: **pending live run (needs OpenRouter key).** One call per run; the cost
-is logged in `traces.jsonl`.
+## Results of the real-data run (8 October 2026, coding agent)
+
+| Layer | Result | Denominator | Evidence |
+|---|---|---|---|
+| Metric edge cases (synthetic fixture) | 50 passed, 0 failed | 50 tests | `pytest` |
+| Reconciliation on the real Olist data | 7 of 7 match | 7 totals | `outputs/reconciliation.csv` |
+| AI memo draft, number check (`openai/gpt-6-luna`, the `MODEL_CHEAP` model) | 3 of 3 drafts passed (0 unsupported numbers; 23, 24 and 25 numbers per draft) | 3 drafts, 1 call each | `evals/ai_draft/number_check.csv`, `traces.jsonl`, `memo_draft_*.md` |
+
+- **Cost of the 3 live calls:** US$0.0017598 in total (0.0007151 + 0.0005056 + 0.0005391, from
+  OpenRouter's `usage.cost` in `traces.jsonl`); 901 prompt tokens per call; latency 8.8–11.9 s.
+- **What the number check cannot see** (coding agent's reading of the 3 drafts, not a
+  measured score): none of the drafts mentions that 70.1% of late-order reviews were
+  answered before the parcel arrived (a fact that was in `memo_facts.json`); draft 1 turns
+  that fact into a vague recommendation about "customer-response handling"; all three quote
+  revenue and freight without the currency (BRL). Every number was faithful, but the choice
+  of what to say still needs a human, which is why Sara rewrites the memo herself.
+- n = 3 drafts from one model on one set of facts, so this shows the checker works on real
+  model output; it is not a general faithfulness rate.

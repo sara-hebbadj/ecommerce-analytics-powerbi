@@ -47,6 +47,7 @@ Money is in **BRL** (Brazilian reais). Flags are integers: `1` = yes, `0` = no, 
 | payment_value | money | Sum of payments (can differ from items + freight: vouchers, instalment interest) |
 | main_payment_type | text | Payment type that paid the largest share of the order |
 | review_score | 1–5/empty | Latest review for the order; empty if none or invalid |
+| review_answered_before_delivery | 0/1/empty | 1 if the customer answered the review survey BEFORE the parcel arrived (Olist sends the survey when the parcel arrives or when the promised date is due). Empty when there is no review or `has_valid_delivery = 0` |
 
 ## fact_order_items
 
@@ -81,7 +82,7 @@ plus `purchase_date`, `purchase_month`, `is_delivered`, `customer_state` from th
 
 ## dim_product, dim_seller, dim_state, dim_date
 
-- **dim_product:** `product_id`, `category`, `category_pt`, `weight_g`, `photos_qty`, `length_cm`, `height_cm`, `width_cm`.
+- **dim_product:** `product_id`, `category`, `category_pt`, `weight_g`, `photos_qty`, `length_cm`, `height_cm`, `width_cm`. (`clean_products` also has `has_english_name`, used only by the data-quality log: some category names are the same in Portuguese and English, e.g. `pet_shop`.)
 - **dim_seller:** `seller_id`, `seller_zip_code_prefix` (5 digits, leading zeros kept), `seller_city`, `seller_state`.
 - **dim_state:** `state_code`, `state_name`, `region` (North, Northeast, Central-West, Southeast, South), `map_location` (e.g. "São Paulo, Brazil", for the Power BI map), `latitude`, `longitude` (median of the geolocation points in that state).
 - **dim_date:** `date`, `year`, `quarter`, `month_number`, `month_name`, `year_month`, `month_start`, `weekday_number` (1 = Monday), `weekday_name`.

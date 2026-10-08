@@ -61,6 +61,14 @@ CHECKS = [
         "Counted in revenue; excluded from delivery-time and lateness metrics.",
     ),
     Check(
+        "orders_on_time_by_date_but_late_by_timestamp",
+        "clean_orders",
+        "SELECT COUNT(*) FROM clean_orders "
+        "WHERE has_valid_delivery AND delay_days = 0 AND delivered_ts > estimated_ts",
+        "Counted as on time (late compares dates). Comparing timestamps instead would "
+        "add these orders to the late count.",
+    ),
+    Check(
         "orders_not_delivered_but_have_delivery_date",
         "clean_orders",
         "SELECT COUNT(*) FROM clean_orders WHERE NOT is_delivered AND delivered_ts IS NOT NULL",
@@ -117,8 +125,10 @@ CHECKS = [
     Check(
         "products_category_without_english_name",
         "clean_products",
+        # Uses the explicit flag: several real names are identical in both languages
+        # (e.g. 'pet_shop'), so comparing the two names over-counts (see README section 6).
         "SELECT COUNT(*) FROM clean_products "
-        "WHERE category_pt <> 'unknown' AND category = category_pt",
+        "WHERE category_pt <> 'unknown' AND NOT has_english_name",
         "Portuguese category name used instead.",
     ),
     # --- Reviews ---
