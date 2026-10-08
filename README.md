@@ -7,7 +7,9 @@ checks the definitions against hand-worked answers.
 
 ## 1. Demo
 
-Demo video/Space: pending — to be recorded by Sara.
+**Live demo:** [huggingface.co/spaces/sarahebbadj/ecommerce-analytics-powerbi](https://huggingface.co/spaces/sarahebbadj/ecommerce-analytics-powerbi) (no API key needed).
+
+Demo video: pending — to be recorded by Sara.
 
 Dashboard screenshots and PDF: pending (Sara builds the dashboard; see `docs/POWERBI_STEPS.md`).
 

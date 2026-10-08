@@ -1,11 +1,17 @@
 # Demo
 
-This project has no web app: its demo is the **Power BI dashboard** (built by Sara with
-`docs/POWERBI_STEPS.md`; PDF export and `.pbit` template go in `powerbi/`) and a 2-minute
-walkthrough video.
+Two front ends show the same results:
 
-Demo video: pending — to be recorded by Sara.
+- **Power BI dashboard**: the main demo for data-analyst roles, built by Sara with
+  `docs/POWERBI_STEPS.md` (PDF export and `.pbit` template go in `powerbi/`).
+- **`app/app.py`**: a small Gradio dashboard that runs as a Hugging Face Space
+  (https://huggingface.co/spaces/sarahebbadj/ecommerce-analytics-powerbi). It reads only the
+  committed, aggregated files in `outputs/` (CC BY-NC-SA 4.0, derived from the Olist data), never
+  the raw data or the row-level database, and needs no API key.
 
-A Gradio app was left out on purpose: the target roles (data analyst, AI product analyst)
-are asked about SQL and Power BI, and a second front end would add code without adding
-evidence.
+```bash
+pip install -e ".[app]"
+python app/app.py        # then open http://127.0.0.1:7860
+```
+
+Demo video: pending, to be recorded by Sara.
