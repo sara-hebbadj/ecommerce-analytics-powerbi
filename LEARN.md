@@ -54,8 +54,11 @@ Do each one, run `pytest`, and explain which tests changed and why.
 1. **Change the definition of "late" to "more than 3 days late".**
    In `sql/stage_2_model.sql`, change `o.delay_days > 0` to `o.delay_days > 3` in `is_late`.
    Expected on the fixture: order `o02` (3 days late) becomes on time, so late orders go from
-   2 to 1 and `test_late_rate_by_state` and the memo tests fail. Update the expected numbers
-   by hand (late rate 1/8 = 12.5%), then discuss: is a grace period fairer to sellers, and
+   2 to 1 and 5 tests fail: `test_late_rate_by_state`, `test_reviews_late_vs_on_time`,
+   `test_review_answered_before_late_delivery_is_counted`, `test_seller_ranking` (all in
+   `tests/test_metrics.py`) and `test_memo_numbers_come_from_the_results`
+   (`tests/test_outputs.py`). Update the expected numbers by hand (late rate 1/8 = 12.5%),
+   then discuss: is a grace period fairer to sellers, and
    would the review gap shrink or grow?
 
 2. **Add a new question: revenue by weekday.**

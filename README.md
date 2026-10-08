@@ -75,7 +75,8 @@ in the file named next to it, under `outputs/`.
 | Metric and cleaning tests with hand-worked answers | 50 passed, 0 failed | 50 tests | synthetic fixture (not real data) | `pytest` |
 | Reconciliation (same total computed two ways) | 7 of 7 match | 7 totals | real Olist data | `reconciliation.csv` |
 | Data-quality checks that found rows | 15 of 27 | 27 checks | real Olist data | `dq_log.csv` |
-| AI memo draft, number check (`openai/gpt-6-luna`) | 3 of 3 drafts with 0 unsupported numbers | 3 drafts, US$0.0017598 in total | real memo facts | `evals/ai_draft/number_check.csv` |
+| AI memo draft, number check (`openai/gpt-6-luna`), current facts file | 3 of 3 drafts with 0 unsupported numbers | 3 drafts, US$0.0018879 in total | real memo facts (current `memo_facts.json`) | `evals/ai_draft/number_check.csv` (rows from 15:18 UTC) |
+| Same check, first 3 drafts | 3 of 3 drafts with 0 unsupported numbers (also 0 when re-checked against the current facts file) | 3 drafts, US$0.0017598 in total | an earlier `memo_facts.json` from the same day (older data label) | `evals/ai_draft/number_check.csv` (rows from 12:35 UTC) |
 
 **Key numbers**
 
@@ -211,6 +212,8 @@ Without uv: `python -m venv .venv`, activate it (Windows: `.venv\Scripts\activat
 - **First real-data run:** later the same day a coding agent downloaded the Olist data,
   ran the pipeline, fixed the problems listed in section 6, ran the optional AI draft three
   times with `openai/gpt-6-luna` (US$0.0017598 in total) and wrote the numbers in section 5.
+  Those 3 drafts were made from an earlier `memo_facts.json` (older data label), so a coding
+  agent ran the draft 3 more times on the current facts file (US$0.0018879 in total).
 - **My part (to complete before publishing):** re-run the pipeline on my computer, review
   every SQL file, definition and number, build the Power BI dashboard myself, and write the
   memo's conclusions and recommendations.
